@@ -51,7 +51,7 @@ services:
     image: coomia/hive3:1.0
     container_name: hive-metastore
     volumes:
-      - /data/tools:/tools
+      - /home/zhangxin/data/tools:/tools
     env_file:
       - ./hadoop.env
     command: /opt/hive/bin/hive --service metastore
@@ -78,20 +78,21 @@ services:
     container_name: zookeeper
     ports:
       - 2181:2181
-  kafka:
-    image: wurstmeister/kafka:2.12-2.5.0
-    container_name: kafka
-    ports:
-      - "9092:9092"
-    depends_on:
-      - zookeeper
-    environment:
-      KAFKA_ADVERTISED_HOST_NAME: 10.116.200.24
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_CREATE_TOPICS: "arkuser:1:1, arkevent:1:1"
-      KAFKA_TRANSACTION_MAX_TIMEOUT_MS: "7200000"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock    
+
+  # kafka:
+  #   image: wurstmeister/kafka:2.12-2.5.0
+  #   container_name: kafka
+  #   ports:
+  #     - "9092:9092"
+  #   depends_on:
+  #     - zookeeper
+  #   environment:
+  #     KAFKA_ADVERTISED_HOST_NAME: 10.116.200.24
+  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+  #     KAFKA_CREATE_TOPICS: "arkuser:1:1, arkevent:1:1"
+  #     KAFKA_TRANSACTION_MAX_TIMEOUT_MS: "7200000"
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock    
   prestodb:
     image: coomia/prestodb:0.1
     container_name: prestodb
@@ -99,7 +100,7 @@ services:
       - "9999:8080"
     volumes:
       - ./conf/standalone:/opt/presto/etc:ro
-      - /data/presto:/data
+      - /home/zhangxin/data/presto:/data
     restart: unless-stopped
  
   jobmanager:
@@ -167,52 +168,6 @@ services:
     depends_on:
       - zookeeper
 
-  alluxio-master:
-    image: coomia/alluxio:2.7.1
-    container_name: alluxio-master
-    volumes:
-      - alluxio-journal:/opt/alluxio/journal
-      - alluxio-ufs:/opt/alluxio/underFSStorage/
-    user: root
-    entrypoint: [ bash, -xeuc ]
-    environment:
-      - ALLUXIO_JAVA_OPTS=-XX:+UseContainerSupport -XX:MaxRAMPercentage=45.0
-    command:
-      - |
-        JOURNAL_FOLDER=$$(alluxio getConf alluxio.master.journal.folder)
-        if [ ! -d "$$JOURNAL_FOLDER" ]; then
-          alluxio formatJournal
-        fi
-        exec /entrypoint.sh master --no-format
-    ports:
-      - 19999:19999
-
-  alluxio-worker:
-    image: coomia/alluxio:2.7.1
-    container_name: alluxio-worker
-    volumes:
-      - alluxio-ufs:/opt/alluxio/underFSStorage/
-      - alluxio-worker-data:/alluxio-worker-data
-    user: root
-    command: worker --no-format
-    environment:
-      - ALLUXIO_JAVA_OPTS=-XX:+UseContainerSupport -XX:MaxRAMPercentage=45.0
-      - ALLUXIO_WORKER_TIEREDSTORE_LEVEL0_DIRS_PATH=/alluxio-worker-data
-    depends_on:
-      - alluxio-master
-
-  alluxio-proxy:
-    image: coomia/alluxio:2.7.1
-    container_name: alluxio-proxy
-    user: root
-    command: proxy
-    environment:
-      - ALLUXIO_JAVA_OPTS=-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0
-    ports:
-      - 39999:39999
-    depends_on:
-      - alluxio-master
-
   elasticsearch:
     image: elasticsearch:7.9.1
     container_name: elasticsearch
@@ -257,7 +212,3 @@ services:
     environment:
       - TZ=Asia/Shanghai
       
-volumes:
-  alluxio-worker-data:
-  alluxio-ufs:
-  alluxio-journal:
