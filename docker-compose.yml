@@ -20,7 +20,7 @@ services:
       - "9864"
     env_file:
       - ./hadoop.env
-  
+
   resourcemanager:
     image: coomia/hadoop3.2-resourcemanager:1.0
     container_name: resourcemanager
@@ -38,7 +38,7 @@ services:
       SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode:9864 resourcemanager:8088"
     env_file:
       - ./hadoop.env
-  
+
   historyserver:
     image: coomia/hadoop3.2-historyserver:1.0
     container_name: historyserver
@@ -92,7 +92,7 @@ services:
   #     KAFKA_CREATE_TOPICS: "arkuser:1:1, arkevent:1:1"
   #     KAFKA_TRANSACTION_MAX_TIMEOUT_MS: "7200000"
   #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock    
+  #     - /var/run/docker.sock:/var/run/docker.sock
   prestodb:
     image: coomia/prestodb:0.1
     container_name: prestodb
@@ -102,7 +102,7 @@ services:
       - ./conf/standalone:/opt/presto/etc:ro
       - /home/zhangxin/data/presto:/data
     restart: unless-stopped
- 
+
   jobmanager:
     image: coomia/flink:1.14
     container_name: jobmanager
@@ -127,7 +127,7 @@ services:
       - "jobmanager:jobmanager"
     environment:
       - JOB_MANAGER_RPC_ADDRESS=jobmanager
-      
+
   hbase-master:
     image: coomia/hbase2.2:0.1
     container_name: hbase-master
@@ -137,7 +137,7 @@ services:
       - 16010:16010
     depends_on:
       - zookeeper
-      
+
   hbase-regionserver:
     image: coomia/hbase2.2:0.1
     container_name: hbase-regionserver
@@ -197,11 +197,9 @@ services:
     environment:
       I18N_LOCALE: zh-CN
     restart: always
-    ports:
-      - "5601:5601"
     depends_on:
       - elasticsearch
-      
+
   filebeat:
     image: docker.elastic.co/beats/filebeat:7.9.1
     hostname: filebeat
@@ -211,4 +209,3 @@ services:
       - ./elk/filebeat/logs:/usr/share/filebeat/logs
     environment:
       - TZ=Asia/Shanghai
-      
