@@ -171,6 +171,9 @@ services:
   elasticsearch:
     image: elasticsearch:7.9.1
     container_name: elasticsearch
+    volumes:
+      - ./elk/es/ik/:/usr/share/elasticsearch/plugins/ik
+      - ./elk/es/data/:/usr/share/elasticsearch/data
     environment:
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
@@ -209,3 +212,4 @@ services:
       - ./elk/filebeat/logs:/usr/share/filebeat/logs
     environment:
       - TZ=Asia/Shanghai
+
